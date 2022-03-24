@@ -182,7 +182,7 @@ public class SourcesMojo extends AbstractMojo {
 		});
 		args.add(headerFile);
 
-		getLog().info("Running " + String.join(" ", args));
+		getLog().debug("Running: " + String.join(" ", args));
 
 		ProcessBuilder command = new ProcessBuilder(args);
 		command.directory(outputDirectory);
