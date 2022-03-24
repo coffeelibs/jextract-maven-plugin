@@ -23,15 +23,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Build and Test
-        id: buildAndTest
-        run: mvn -B install -Psign
-        env:
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.RELEASES_GPG_PASSPHRASE }}
+        run: mvn -B install
       - name: Deploy to GitHub Packages
         if: startsWith(github.ref, 'refs/tags/')
-        run: mvn -B deploy:deploy -Pdeploy-github --no-transfer-progress
+        run: mvn -B deploy -Psign,deploy-github -DskipTests --no-transfer-progress
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.RELEASES_GPG_PASSPHRASE }}
       - uses: actions/setup-java@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
@@ -40,12 +38,15 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.RELEASES_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
       - name: Deploy to OSSRH
         if: startsWith(github.ref, 'refs/tags/')
-        run: mvn -B nexus-staging:deploy -Pdeploy-central --no-transfer-progress
+        run: mvn -B deploy -Psign,deploy-central -DskipTests --no-transfer-progress
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.RELEASES_GPG_PASSPHRASE }}
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
