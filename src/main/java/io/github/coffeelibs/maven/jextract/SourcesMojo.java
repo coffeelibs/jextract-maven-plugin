@@ -1,7 +1,6 @@
 package io.github.coffeelibs.maven.jextract;
 
 import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -67,12 +66,12 @@ public class SourcesMojo extends AbstractMojo {
 
 	/**
 	 * <dl>
-	 *     <dt>-C</dt>
-	 *     <dd>pass through argument for clang</dd>
+	 *     <dt>-D</dt>
+	 *     <dd>C preprocessor macro</dd>
 	 * </dl>
 	 */
-	@Parameter(property = "jextract.clangArgs", required = false)
-	private String[] clangArgs;
+	@Parameter(property = "jextract.cPreprocessorMacros", required = false)
+	private String[] cPreprocessorMacros;
 
 	/**
 	 * <dl>
@@ -128,8 +127,21 @@ public class SourcesMojo extends AbstractMojo {
 	@Parameter(property = "jextract.includeVars", required = false)
 	private String[] includeVars;
 
+	/**
+	 * <dl>
+	 *     <dt>--output</dt>
+	 *     <dd>specify the directory to place generated files</dd>
+	 * </dl>
+	 */
 	@Parameter(property = "jextract.outputDirectory", defaultValue = "${project.build.directory}/generated-sources/jextract", required = true)
 	private File outputDirectory;
+
+	/**
+	 * working directory, which might contain <code>compile_flags.txt</code> to specify additional clang compiler options.
+	 */
+	@Parameter(property = "jextract.workingDirectory", defaultValue = "${project.basedir}", required = true)
+	private File workingDirectory;
+
 
 	public void execute() throws MojoFailureException {
 		try {
@@ -146,14 +158,16 @@ public class SourcesMojo extends AbstractMojo {
 			args.add("--header-class-name");
 			args.add(headerClassName);
 		}
+		args.add("--output");
+		args.add(outputDirectory.getAbsolutePath());
 		args.add("--target-package");
 		args.add(targetPackage);
 		Arrays.stream(headerSearchPaths).forEach(str -> {
 			args.add("-I");
 			args.add(str);
 		});
-		Arrays.stream(clangArgs).forEach(str -> {
-			args.add("-C");
+		Arrays.stream(cPreprocessorMacros).forEach(str -> {
+			args.add("-D");
 			args.add(str);
 		});
 		Arrays.stream(includeFunctions).forEach(str -> {
@@ -185,7 +199,7 @@ public class SourcesMojo extends AbstractMojo {
 		getLog().debug("Running: " + String.join(" ", args));
 
 		ProcessBuilder command = new ProcessBuilder(args);
-		command.directory(outputDirectory);
+		command.directory(workingDirectory);
 		try (var stdout = new LoggingOutputStream(getLog()::info, StandardCharsets.UTF_8);
 			 var stderr = new LoggingOutputStream(getLog()::warn, StandardCharsets.UTF_8)) {
 			Process process = command.start();
