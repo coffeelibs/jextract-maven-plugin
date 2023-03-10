@@ -84,12 +84,12 @@ public class SourcesMojo extends AbstractMojo {
 
 	/**
 	 * <dl>
-	 *     <dt>--include-macro</dt>
-	 *     <dd>name of constant macro to include</dd>
+	 *     <dt>--include-constant</dt>
+	 *     <dd>name of macro or enum constant to include</dd>
 	 * </dl>
 	 */
-	@Parameter(property = "jextract.includeMacros", required = false)
-	private String[] includeMacros;
+	@Parameter(property = "jextract.includeConstants", required = false)
+	private String[] includeConstants;
 
 	/**
 	 * <dl>
@@ -174,8 +174,8 @@ public class SourcesMojo extends AbstractMojo {
 			args.add("--include-function");
 			args.add(str);
 		});
-		Arrays.stream(includeMacros).forEach(str -> {
-			args.add("--include-macro");
+		Arrays.stream(includeConstants).forEach(str -> {
+			args.add("--include-constant");
 			args.add(str);
 		});
 		Arrays.stream(includeStructs).forEach(str -> {
