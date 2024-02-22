@@ -153,7 +153,6 @@ public class SourcesMojo extends AbstractMojo {
 
 		List<String> args = new ArrayList<>();
 		args.add(executable);
-		args.add("--source");
 		if (headerClassName != null) {
 			args.add("--header-class-name");
 			args.add(headerClassName);
