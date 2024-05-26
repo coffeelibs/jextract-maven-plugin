@@ -206,7 +206,6 @@ public class SourcesMojo extends AbstractMojo {
 			args.add("--include-var");
 			args.add(str);
 		});
-		args.add("--source");
 		args.add(headerFile);
 
 		getLog().debug("Running: " + String.join(" ", args));
