@@ -4,7 +4,7 @@
 	<groupId>io.github.coffeelibs</groupId>
 	<artifactId>jextract-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>0.4.0</version>
+	<version>0.5.0-SNAPSHOT</version>
 	<name>jextract Maven Plugin</name>
 	<description>A Maven plugin to invokes jextract.</description>
 	<inceptionYear>2022</inceptionYear>
