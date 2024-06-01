@@ -129,6 +129,15 @@ public class SourcesMojo extends AbstractMojo {
 
 	/**
 	 * <dl>
+	 *     <dt>--library</dt>
+	 *     <dd>path to shared libraries to load</dd>
+	 * </dl>
+	 */
+	@Parameter(property = "jextract.libraries", required = false)
+	private String[] libraries;
+
+	/**
+	 * <dl>
 	 *     <dt>--output</dt>
 	 *     <dd>specify the directory to place generated files</dd>
 	 * </dl>
@@ -161,6 +170,10 @@ public class SourcesMojo extends AbstractMojo {
 		args.add(outputDirectory.getAbsolutePath());
 		args.add("--target-package");
 		args.add(targetPackage);
+		Arrays.stream(libraries).forEach(str -> {
+			args.add("--library");
+			args.add(str);
+		});
 		Arrays.stream(headerSearchPaths).forEach(str -> {
 			args.add("-I");
 			args.add(str);
