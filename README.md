@@ -21,6 +21,9 @@ This is a Maven wrapper for the [`jextract`](https://github.com/openjdk/jextract
 			</goals>
 			<configuration>
 				<headerFile>point.h</headerFile>
+				<libraries>
+					<library>/path/to/shared/library.so</library>
+				</libraries>
 				<targetPackage>com.example.mypackage</targetPackage>
 				<headerClassName>Point2d</headerClassName>
 				<includeStructs>
