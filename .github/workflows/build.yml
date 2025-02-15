@@ -9,11 +9,11 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    permissions: # Required for the attestations step
-      id-token: write
-      contents: read
-      attestations: write
-      packages: write
+    permissions:
+      id-token: write # Required for the attestations step
+      contents: write # Required for the release step
+      attestations: write # Required for the attestations step
+      packages: write # Required for the deploy to GitHub Packages step
     steps:
       - uses: actions/checkout@v4
         with:
