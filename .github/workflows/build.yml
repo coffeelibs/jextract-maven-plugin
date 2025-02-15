@@ -48,8 +48,6 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: temurin
           cache: 'maven'
-          gpg-private-key: ${{ secrets.RELEASES_GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Deploy to GitHub Packages
         if: startsWith(github.ref, 'refs/tags/')
