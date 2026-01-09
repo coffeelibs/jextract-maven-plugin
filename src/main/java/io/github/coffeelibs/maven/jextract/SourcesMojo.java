@@ -9,11 +9,13 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
 @Mojo(name = "sources", defaultPhase = LifecyclePhase.GENERATE_SOURCES, threadSafe = true, requiresOnline = true)
@@ -215,9 +217,25 @@ public class SourcesMojo extends AbstractMojo {
 		try (var stdout = new LoggingOutputStream(getLog()::info, StandardCharsets.UTF_8);
 			 var stderr = new LoggingOutputStream(getLog()::warn, StandardCharsets.UTF_8)) {
 			Process process = command.start();
-			process.getInputStream().transferTo(stdout);
-			process.getErrorStream().transferTo(stderr);
+
+			final var stdoutFuture = CompletableFuture.runAsync(() -> {
+				try {
+					process.getInputStream().transferTo(stdout);
+				} catch (IOException e) {
+					throw new UncheckedIOException("Error while writing jextract stdout to logs", e);
+				}
+			});
+
+			final var stderrFuture = CompletableFuture.runAsync(() -> {
+				try {
+					process.getErrorStream().transferTo(stderr);
+				} catch (IOException e) {
+					throw new UncheckedIOException("Error while writing jextract stderr to logs", e);
+				}
+			});
+
 			int result = process.waitFor();
+			CompletableFuture.allOf(stdoutFuture, stderrFuture).join();
 			if (result != 0) {
 				throw new MojoFailureException("jextract returned error code " + result);
 			}
